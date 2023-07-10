@@ -59,6 +59,31 @@ def create_can() -> int:
     return CAN
 
 
+def create_check_sum(BIN: str) -> int:
+    """Return a one digit check_sum whose addition to the 15 digit <BIN> will
+    satisfy the Luhn algorithm."""
+
+    # Create a dictionary where each digit of BIN corresponds to a step,
+    # starting from 1
+    BIN_dict = {key: int(value) for key, value in enumerate(BIN, start=1)}
+    # Multiply digits that correspond to odd steps by 2
+    BIN_dict = {key: (value*2 if key % 2 == 1 else value) for key, value in \
+                BIN_dict.items()}
+    # Subtract 9 from digits that are over 9
+    BIN_list = [value - 9 if value > 9 else value for value in \
+                list(BIN_dict.values())]
+    # Add all numbers
+    sum_all = sum(BIN_list)
+    # The 16th digit is the digit where, once it is added to <sum_all> leads to
+    # a number divisible by 10
+    num = int(str(sum_all)[-1])
+    if num == 0:
+        last_digit = 0
+    else:
+        last_digit = 10 - num
+    return last_digit
+
+
 def create_card_number() -> int:
     """Return a unique credit card number that specifies the following
     requirements:
@@ -66,13 +91,13 @@ def create_card_number() -> int:
     - Issuer Identification Number (IIN) is 400000
     - Customer Account Number (CAN) is a unique 9 digit number that doesn't
     already exist in CreditCard class.
-    - Checksum is a random number between 0 and 9.
+    - Checksum is a number that will satisfy the Luhn algorithm.
     """
 
     IIN = '400000'
     CAN = str(create_can())
-    check_sum = str(random.choice(range(10)))
-    card_number = IIN + CAN + check_sum
+    check_sum = create_check_sum(IIN + CAN)
+    card_number = IIN + CAN + str(check_sum)
     return int(card_number)
 
 
