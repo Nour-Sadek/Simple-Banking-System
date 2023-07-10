@@ -92,6 +92,22 @@ def create_card() -> CreditCard:
     return card
 
 
+def check_account(card: CreditCard) -> None:
+    while True:
+        print(account_message())
+        user_input = input()
+        if user_input == '1':
+            print(f'Balance: {card.balance}')
+        elif user_input == '2':
+            print('You have successfully logged out!')
+            break
+        elif user_input == '0':
+            print('Bye!')
+            quit()
+        else:
+            print('Wrong Input. Try again.')
+
+
 while True:
     print(welcome_message())
     user_input = input()
@@ -109,26 +125,16 @@ Your card number:
 Your card PIN:
 {card_pin}''')
     elif user_input == '2':
-        print('Enter your card number:')
-        user_input_number = int(input())
-        print('Enter your pin:')
-        user_input_pin = int(input())
+        user_input_number = int(input('Enter your card number: '))
+        user_input_pin = int(input('Enter your pin: '))
         if user_input_number not in CreditCard.credit_cards:
-            print('Wrong card number or pin!')
+            print('Wrong card number!')
         else:
             if CreditCard.credit_cards[user_input_number].pin != user_input_pin:
-                print('Wrong card number or pin!')
+                print('Wrong pin to Credit Card!')
             else:
                 print('You have successfully logged in!')
                 card = CreditCard.credit_cards[user_input_number]
-                while True:
-                    print(account_message())
-                    user_input = input()
-                    if user_input == '1':
-                        print(f'Balance: {card.balance}')
-                    elif user_input == '2':
-                        print('You have successfully logged out!')
-                        break
-                    elif user_input == '0':
-                        print('Bye!')
-                        quit()
+                check_account(card)
+    else:
+        print('Wrong Input. Try again.')
