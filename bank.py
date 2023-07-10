@@ -32,6 +32,7 @@ class CreditCard:
         CreditCard.credit_cards_can.append(int(CAN))
         CreditCard.credit_cards[card_number] = self
 
+
 # Helper functions
 def welcome_message() -> str:
     return f'''1. Create an account
@@ -97,15 +98,15 @@ def check_account(card: CreditCard) -> None:
         print(account_message())
         user_input = input()
         if user_input == '1':
-            print(f'Balance: {card.balance}')
+            print(f'Balance: {card.balance}\n')
         elif user_input == '2':
-            print('You have successfully logged out!')
+            print('\nYou have successfully logged out!\n')
             break
         elif user_input == '0':
             print('Bye!')
             quit()
         else:
-            print('Wrong Input. Try again.')
+            print('Wrong Input. Try again.\n')
 
 
 while True:
@@ -123,18 +124,18 @@ while True:
 Your card number:
 {card_number}
 Your card PIN:
-{card_pin}''')
+{card_pin}\n''')
     elif user_input == '2':
         user_input_number = int(input('Enter your card number: '))
         user_input_pin = int(input('Enter your pin: '))
         if user_input_number not in CreditCard.credit_cards:
-            print('Wrong card number!')
+            print('\nWrong card number!\n')
         else:
             if CreditCard.credit_cards[user_input_number].pin != user_input_pin:
-                print('Wrong pin to Credit Card!')
+                print('\nWrong pin to Credit Card!\n')
             else:
-                print('You have successfully logged in!')
+                print('\nYou have successfully logged in!\n')
                 card = CreditCard.credit_cards[user_input_number]
                 check_account(card)
     else:
-        print('Wrong Input. Try again.')
+        print('Wrong Input. Try again.\n')
