@@ -157,10 +157,38 @@ def create_card() -> CreditCard:
     card_number = create_card_number()
     pin = create_pin()
     card = CreditCard(card_number, pin)
-    command = f'INSERT INTO card (number, pin) VALUES ({card_number}, {pin})'
+    command = f'INSERT INTO card (number, pin) VALUES ("{card_number}", "{pin}")'
     c.execute(command)
     conn.commit()
     return card
+
+
+def make_transfer(from_card: CreditCard, to_card: CreditCard) -> None:
+    money = input('Enter how much you want to transfer: ')
+    try:
+        money = int(money)
+    except ValueError:
+        print('Please enter a valid number.')
+    else:
+        if money < 0:
+            print('Please enter a valid positive amount to transfer.')
+        else:
+            if from_card.balance < money:
+                print('Not enough money!')
+            else:
+                # Remove money to <from_card> and update database
+                from_card.balance = from_card.balance - money
+                command = f'UPDATE card SET balance = {from_card.balance} \
+WHERE number = "{from_card.card_number}"'
+                c.execute(command)
+                conn.commit()
+                # Add money to <to_card> and update database
+                to_card.balance = to_card.balance + money
+                command = f'UPDATE card SET balance = {to_card.balance} \
+WHERE number = "{to_card.card_number}"'
+                c.execute(command)
+                conn.commit()
+                print('Success!\n')
 
 
 def check_account(card: CreditCard) -> None:
@@ -171,11 +199,24 @@ def check_account(card: CreditCard) -> None:
             print(f'Balance: {card.balance}\n')
         elif user_input == '2':  # Add income
             card.add_income()
+            # Update balance in database
+            command = f'UPDATE card SET balance = {card.balance} \
+WHERE number = "{card.card_number}"'
+            c.execute(command)
+            conn.commit()
         elif user_input == '3':  # Make a transfer
-            pass
+            print('\nTransfer')
+            other_card = input('Enter card number: ')
+            if other_card not in bank.cards:
+                print('Such a card does not exist.')
+            elif other_card == card.card_number:
+                print("You can't transfer money to the same account!")
+            else:
+                other_card = bank.cards[other_card]
+                make_transfer(card, other_card)
         elif user_input == '4':  # Close account
             # Delete account from database
-            command = f'DELETE FROM card WHERE number = {card.card_number}'
+            command = f'DELETE FROM card WHERE number = "{card.card_number}"'
             c.execute(command)
             conn.commit()
             # Delete account from Bank
