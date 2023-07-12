@@ -1,4 +1,15 @@
 import random
+import sqlite3
+
+conn = sqlite3.connect('card.s3db')
+
+c = conn.cursor()
+
+c.execute("""CREATE TABLE IF NOT EXISTS card (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+number TEXT,
+pin TEXT,
+balance INTEGER DEFAULT 0)""")
 
 
 class CreditCard:
@@ -115,6 +126,9 @@ def create_card() -> CreditCard:
     card_number = create_card_number()
     pin = create_pin()
     card = CreditCard(card_number, pin)
+    c.execute('INSERT INTO card (number, pin) VALUES (?, ?)',
+              (card_number, pin))
+    conn.commit()
     return card
 
 
