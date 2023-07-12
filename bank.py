@@ -15,15 +15,15 @@ balance INTEGER DEFAULT 0)""")
 class CreditCard:
     """Credit cards of a bank
 
-    Attributes:
+    Public Attributes:
 
-    card_number: an int representing a 16-digit credit card number
-    pin: an int representing a 4-digit number
+    card_number: a str representing a 16-digit credit card number
+
+    pin: a str representing a 4-digit number
+
     balance: an int representing the balance this card has
-    credit_cards_can: a list representing a class instance that saves the
-    Customer Account NUmber (CAN) of all cards registered in the system
-    credit_cards: a dictionary where the key represents the card number and
-    the value is the CreditCard class to which this card number belongs to
+
+    can: a str representing the Customer Account NUmber (CAN)
 
     """
     card_number: str
@@ -32,12 +32,19 @@ class CreditCard:
     can: str
 
     def __init__(self, card_number: str, pin: str, balance=0) -> None:
+        """Initialize this object."""
+
         self.card_number = card_number
         self.pin = pin
         self.balance = balance
         self.can = card_number[6:-1]
 
     def add_income(self) -> None:
+        """Update balance attribute if inputted income is a valid income.
+
+        An income is valid if it is a positive number.
+        """
+
         while True:
             income = input('\nEnter income: ')
             try:
@@ -58,16 +65,22 @@ class Bank:
 
     cards: A dictionary that maps a credit's card number (key) to a CreditCard
            object
-    """
+    cards_can: A list that stores the CAN of all registered CreditCard objects
 
+    """
     cards: dict[str, CreditCard]
     cards_can: list[str]
 
     def __init__(self) -> None:
+        """Initialize this object."""
+
         self.cards = {}
         self.cards_can = []
 
     def add_card(self, card: CreditCard) -> None:
+        """Add CreditCard object to this bank by updating self's cards and
+        cards_can attribute."""
+
         card_number = card.card_number
         card_can = card.can
         self.cards[card_number] = card
@@ -132,7 +145,7 @@ def create_card_number() -> str:
     requirements:
 
     - Issuer Identification Number (IIN) is 400000
-    - Customer Account Number (CAN) is a unique 9 digit number that doesn't
+    - Customer Account Number (CAN) is a unique 9-digit number that doesn't
     already exist in CreditCard class.
     - Checksum is a number that will satisfy the Luhn algorithm.
     """
