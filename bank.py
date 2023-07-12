@@ -26,22 +26,37 @@ class CreditCard:
     the value is the CreditCard class to which this card number belongs to
 
     """
-    card_number: int
-    pin: int
+    card_number: str
+    pin: str
     balance: int
-    credit_cards_can: list[int]
+    can: str
 
-    credit_cards_can = []
-    credit_cards = {}
-
-    def __init__(self, card_number: int, pin: int) -> None:
+    def __init__(self, card_number: str, pin: str) -> None:
         self.card_number = card_number
         self.pin = pin
         self.balance = 0
+        self.can = card_number[6:-1]
 
-        CAN = str(card_number)[6:-1]
-        CreditCard.credit_cards_can.append(int(CAN))
-        CreditCard.credit_cards[card_number] = self
+
+class Bank:
+    """A bank that issues credit cards to customers.
+
+    cards: A dictionary that maps a credit's card number (key) to a CreditCard
+           object
+    """
+
+    cards: dict[str, CreditCard]
+    cards_can: list[str]
+
+    def __init__(self) -> None:
+        self.cards = {}
+        self.cards_can = []
+
+    def add_card(self, card: CreditCard) -> None:
+        card_number = card.card_number
+        card_can = card.can
+        self.cards[card_number] = card
+        self.cards_can.append(card_can)
 
 
 # Helper functions
@@ -59,18 +74,17 @@ def account_message() -> str:
 '''
 
 
-def create_can() -> int:
+def create_can() -> str:
     """Return a unique Customer Account Number (CAN)."""
 
     CAN_list = [str(random.choice(range(10))) for _ in range(9)]
     CAN = ''.join(CAN_list)
-    CAN = int(CAN)
-    if CAN in CreditCard.credit_cards_can:
+    if CAN in bank.cards_can:
         CAN = create_can()
     return CAN
 
 
-def create_check_sum(BIN: str) -> int:
+def create_check_sum(BIN: str) -> str:
     """Return a one digit check_sum whose addition to the 15 digit <BIN> will
     satisfy the Luhn algorithm."""
 
@@ -92,10 +106,10 @@ def create_check_sum(BIN: str) -> int:
         last_digit = 0
     else:
         last_digit = 10 - num
-    return last_digit
+    return str(last_digit)
 
 
-def create_card_number() -> int:
+def create_card_number() -> str:
     """Return a unique credit card number that specifies the following
     requirements:
 
@@ -108,17 +122,16 @@ def create_card_number() -> int:
     IIN = '400000'
     CAN = str(create_can())
     check_sum = create_check_sum(IIN + CAN)
-    card_number = IIN + CAN + str(check_sum)
-    return int(card_number)
+    card_number = IIN + CAN + check_sum
+    return card_number
 
 
-def create_pin() -> int:
+def create_pin() -> str:
     """Return a Personal Identification Number (PIN) that can take any value
     between 0000 and 9999."""
 
     pin_list = [str(random.choice(range(10))) for _ in range(4)]
     pin = ''.join(pin_list)
-    pin = int(pin)
     return pin
 
 
@@ -148,6 +161,8 @@ def check_account(card: CreditCard) -> None:
             print('Wrong Input. Try again.\n')
 
 
+bank = Bank()
+
 while True:
     print(welcome_message())
     user_input = input()
@@ -155,26 +170,29 @@ while True:
     if user_input == '0':
         print('Bye!')
         break
+
     elif user_input == '1':
+
         card = create_card()
-        card_number = card.card_number
-        card_pin = card.pin
+        bank.add_card(card)
+
         print(f'''Your card has been created
 Your card number:
-{card_number}
+{card.card_number}
 Your card PIN:
-{card_pin}\n''')
+{card.pin}\n''')
+
     elif user_input == '2':
-        user_input_number = int(input('Enter your card number: '))
-        user_input_pin = int(input('Enter your pin: '))
-        if user_input_number not in CreditCard.credit_cards:
+        user_input_number = input('Enter your card number: ')
+        user_input_pin = input('Enter your pin: ')
+        if user_input_number not in bank.cards:
             print('\nWrong card number!\n')
         else:
-            if CreditCard.credit_cards[user_input_number].pin != user_input_pin:
+            if bank.cards[user_input_number].pin != user_input_pin:
                 print('\nWrong pin to Credit Card!\n')
             else:
                 print('\nYou have successfully logged in!\n')
-                card = CreditCard.credit_cards[user_input_number]
+                card = bank.cards[user_input_number]
                 check_account(card)
     else:
         print('Wrong Input. Try again.\n')
