@@ -37,6 +37,21 @@ class CreditCard:
         self.balance = 0
         self.can = card_number[6:-1]
 
+    def add_income(self) -> None:
+        while True:
+            income = input('\nEnter income: ')
+            try:
+                income = int(income)
+            except ValueError:
+                print('Please provide a number')
+            else:
+                if income < 0:
+                    print('Please provide a valid positive income.')
+                else:
+                    self.balance = self.balance + income
+                    print('Income was added!\n')
+                    break
+
 
 class Bank:
     """A bank that issues credit cards to customers.
@@ -69,7 +84,10 @@ def welcome_message() -> str:
 
 def account_message() -> str:
     return f'''1. Balance
-2. Log out
+2. Add income
+3. Do transfer
+4. Close account
+5. Log out
 0. Exit
 '''
 
@@ -139,8 +157,8 @@ def create_card() -> CreditCard:
     card_number = create_card_number()
     pin = create_pin()
     card = CreditCard(card_number, pin)
-    c.execute('INSERT INTO card (number, pin) VALUES (?, ?)',
-              (card_number, pin))
+    command = f'INSERT INTO card (number, pin) VALUES ({card_number}, {pin})'
+    c.execute(command)
     conn.commit()
     return card
 
@@ -149,12 +167,25 @@ def check_account(card: CreditCard) -> None:
     while True:
         print(account_message())
         user_input = input()
-        if user_input == '1':
+        if user_input == '1':  # Check balance
             print(f'Balance: {card.balance}\n')
-        elif user_input == '2':
+        elif user_input == '2':  # Add income
+            card.add_income()
+        elif user_input == '3':  # Make a transfer
+            pass
+        elif user_input == '4':  # Close account
+            # Delete account from database
+            command = f'DELETE FROM card WHERE number = {card.card_number}'
+            c.execute(command)
+            conn.commit()
+            # Delete account from Bank
+            del bank.cards[card.card_number]
+            bank.cards_can.remove(card.can)
+            break
+        elif user_input == '5':  # Log out
             print('\nYou have successfully logged out!\n')
             break
-        elif user_input == '0':
+        elif user_input == '0':  # Exit
             print('Bye!')
             quit()
         else:
