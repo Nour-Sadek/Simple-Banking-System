@@ -31,10 +31,10 @@ class CreditCard:
     balance: int
     can: str
 
-    def __init__(self, card_number: str, pin: str) -> None:
+    def __init__(self, card_number: str, pin: str, balance=0) -> None:
         self.card_number = card_number
         self.pin = pin
-        self.balance = 0
+        self.balance = balance
         self.can = card_number[6:-1]
 
     def add_income(self) -> None:
@@ -222,6 +222,7 @@ WHERE number = "{card.card_number}"'
             # Delete account from Bank
             del bank.cards[card.card_number]
             bank.cards_can.remove(card.can)
+            print('Account has been closed!\n')
             break
         elif user_input == '5':  # Log out
             print('\nYou have successfully logged out!\n')
@@ -234,6 +235,21 @@ WHERE number = "{card.card_number}"'
 
 
 bank = Bank()
+
+# Add all the credit cards saved in <card.s3db> to <bank>
+# Fetch all the available cards
+c.execute('SELECT * FROM card')
+cards = c.fetchall()
+# Add each card to <bank>
+for tup in cards:
+    # Extract info from each row
+    card_number = tup[1]
+    card_pin = tup[2]
+    card_balance = tup[3]
+    # Create CreditCard object and add to <bank>
+    card = CreditCard(card_number, card_pin, card_balance)
+    bank.add_card(card)
+
 
 while True:
     print(welcome_message())
